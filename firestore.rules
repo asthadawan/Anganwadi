@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthorized(auth) {
+      return auth != null && (auth.token.admin == true || auth.token.role == 'coordinator');
+    }
+
+    function validBeneficiary(data) {
+      return data != null
+        && data.keys().hasAll(['name', 'aadhar', 'dob'])
+        && data.name is string && data.name.size() > 0
+        && data.aadhar is string && data.aadhar.matches('^\\d{4} \\d{4} \\d{4}$')
+        && data.dob is string && data.dob.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && (!data.keys().hasAny(['phone']) || (data.phone is string && (data.phone.size() == 0 || data.phone.matches('^\\d{10}$'))));
+    }
+
+    match /beneficiaries/{beneficiaryId} {
+      allow read: if request.auth != null;
+
+      allow create: if isAuthorized(request.auth)
+        && validBeneficiary(request.resource.data)
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if isAuthorized(request.auth)
+        && validBeneficiary(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time;
+
+      allow delete: if isAuthorized(request.auth);
+    }
+  }
+}

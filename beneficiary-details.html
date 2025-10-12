@@ -177,7 +177,7 @@
             justify-content: flex-end;
         }
 
-        .form-actions button {
+        .form-actions .primary-button {
             background-color: var(--brand-primary);
             color: var(--brand-surface);
             border: none;
@@ -190,14 +190,14 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .form-actions button:hover,
-        .form-actions button:focus-visible {
+        .form-actions .primary-button:hover,
+        .form-actions .primary-button:focus-visible {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(245, 124, 0, 0.35);
             outline: none;
         }
 
-        .form-actions button:disabled {
+        .form-actions .primary-button:disabled {
             background-color: rgba(245, 124, 0, 0.6);
             cursor: not-allowed;
             box-shadow: none;
@@ -320,6 +320,50 @@
             color: #c62828;
         }
 
+        .toast-stack {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-width: min(90vw, 320px);
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .toast {
+            background-color: #ffffff;
+            color: var(--brand-dark);
+            border-radius: 0.9rem;
+            padding: 0.85rem 1rem;
+            box-shadow: 0 12px 30px rgba(66, 66, 66, 0.18);
+            border: 1px solid rgba(66, 66, 66, 0.08);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            font-size: 0.9rem;
+            letter-spacing: 0.02em;
+            pointer-events: auto;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid #2e7d32;
+        }
+
+        .toast.error {
+            border-left: 4px solid #c62828;
+        }
+
+        .toast.info {
+            border-left: 4px solid var(--brand-primary);
+        }
+
         .floating-footer {
             position: fixed;
             bottom: 1.5rem;
@@ -401,7 +445,7 @@
                 </div>
                 <div class="form-actions">
                     <button type="button" class="secondary-button" data-action="cancel-edit" hidden>Cancel</button>
-                    <button type="submit">Add Beneficiary</button>
+                    <button type="submit" class="primary-button">Add Beneficiary</button>
                 </div>
                 <p class="form-status" data-status></p>
             </form>
@@ -426,6 +470,7 @@
         </section>
     </main>
     <footer class="floating-footer">developed by ruhan</footer>
+    <div class="toast-stack" aria-live="polite" aria-atomic="true"></div>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-analytics.js";
@@ -439,7 +484,10 @@
             orderBy,
             doc,
             updateDoc,
-            deleteDoc
+            deleteDoc,
+            getDocs,
+            where,
+            limit
         } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -469,6 +517,7 @@
         const submitButton = form.querySelector('button[type="submit"]');
         const cancelButton = form.querySelector('[data-action="cancel-edit"]');
         const statusEl = document.querySelector("[data-status]");
+        const toastStack = document.querySelector(".toast-stack");
         const errorEls = {
             name: document.querySelector('[data-error="name"]'),
             aadhar: document.querySelector('[data-error="aadhar"]'),
@@ -504,10 +553,37 @@
             errorEls[field].textContent = message;
         };
 
+        const showToast = (message, state = "info") => {
+            if (!toastStack || !message) return;
+            const toast = document.createElement("div");
+            toast.className = `toast ${state}`;
+            toast.role = state === "error" ? "alert" : "status";
+            toast.textContent = message;
+            toastStack.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.add("visible");
+            });
+            const hideTimeout = setTimeout(() => {
+                toast.classList.remove("visible");
+                const removeTimeout = setTimeout(() => {
+                    toast.remove();
+                    clearTimeout(removeTimeout);
+                }, 250);
+            }, 4000);
+            toast.addEventListener("click", () => {
+                clearTimeout(hideTimeout);
+                toast.classList.remove("visible");
+                setTimeout(() => toast.remove(), 200);
+            });
+        };
+
         const setStatus = (message = "", state = "info") => {
             if (!statusEl) return;
             statusEl.textContent = message;
             statusEl.dataset.state = state;
+            if (message && state !== "info") {
+                showToast(message, state);
+            }
         };
 
         const exitEditMode = () => {
@@ -533,6 +609,23 @@
         });
 
         let beneficiaries = [];
+
+        const ensureUniqueAadhar = async (aadhar, currentId = null) => {
+            const checkQuery = query(
+                beneficiariesRef,
+                where("aadhar", "==", aadhar),
+                limit(1)
+            );
+            const snapshot = await getDocs(checkQuery);
+            if (snapshot.empty) {
+                return true;
+            }
+            const match = snapshot.docs[0];
+            if (currentId && match.id === currentId) {
+                return true;
+            }
+            return false;
+        };
 
         const renderRows = rows => {
             tableBody.innerHTML = "";
@@ -648,9 +741,16 @@
                 }
             }
         });
-
+            submitButton.disabled = true;
         form.addEventListener("submit", async event => {
             event.preventDefault();
+            const isUnique = await ensureUniqueAadhar(aadhar, editingId);
+            if (!isUnique) {
+                showError("aadhar", "A beneficiary with this Aadhar already exists.");
+                setStatus("Duplicate Aadhar detected. Update the existing record instead.", "error");
+                submitButton.disabled = false;
+                return;
+            }
             resetErrors();
             setStatus();
 
