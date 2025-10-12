@@ -66,61 +66,121 @@
             flex: 1;
             max-width: 1100px;
             margin: clamp(2rem, 6vw, 4rem) auto;
-            padding: 0 clamp(1.25rem, 5vw, 2.5rem) 4rem;
+            padding: 0 clamp(1.25rem, 5vw, 2.5rem) clamp(4rem, 8vw, 6rem);
             display: grid;
             gap: clamp(1.5rem, 4vw, 2.5rem);
         }
 
-        .feature-image {
-            width: 100%;
-            border-radius: 1.25rem;
-            overflow: hidden;
-            box-shadow: 0 16px 35px rgba(66, 66, 66, 0.18);
+        .tracker-grid {
+            display: grid;
+            gap: clamp(1.5rem, 4vw, 2.5rem);
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
         }
 
-        .feature-image img {
-            display: block;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .card {
+        .tracker-card {
             background-color: #ffffff;
             border-radius: 1.25rem;
-            padding: clamp(1.5rem, 4vw, 2.25rem);
+            padding: clamp(1.5rem, 4vw, 2.5rem);
             box-shadow: 0 12px 28px rgba(66, 66, 66, 0.15);
-            border: 1px solid rgba(66, 66, 66, 0.08);
+            border: 1px solid rgba(66, 66, 66, 0.1);
+            display: grid;
+            gap: 1.25rem;
         }
 
-        .card h2 {
-            margin: 0 0 1rem;
-            font-size: 1.5rem;
+        .tracker-card h2 {
+            margin: 0;
+            font-size: 1.35rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
             color: var(--brand-accent);
         }
 
-        .card p {
-            margin: 0 0 1rem;
-            line-height: 1.7;
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
         }
 
-        footer {
+        .input-group label {
+            font-size: 0.95rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        select {
+            padding: 0.9rem 1rem;
+            border-radius: 0.85rem;
+            border: 1px solid rgba(66, 66, 66, 0.18);
+            font-size: 1rem;
+            background-color: var(--brand-surface);
+            color: var(--brand-dark);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        select:focus-visible {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.25);
+            outline: none;
+        }
+
+        .action-button {
+            background-color: var(--brand-primary);
+            color: var(--brand-surface);
+            border: none;
+            border-radius: 999px;
+            padding: 0.95rem 1.75rem;
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            justify-self: start;
+        }
+
+        .action-button:hover,
+        .action-button:focus-visible {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 124, 0, 0.35);
+            outline: none;
+        }
+
+        .results {
+            display: grid;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            letter-spacing: 0.04em;
+        }
+
+        .results span {
+            font-weight: 600;
+        }
+
+        .floating-footer {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
             background-color: var(--brand-dark);
             color: var(--brand-surface);
-            text-align: center;
-            padding: 1rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 999px;
             font-size: 0.9rem;
             letter-spacing: 0.05em;
+            text-transform: uppercase;
+            box-shadow: 0 10px 25px rgba(66, 66, 66, 0.25);
         }
 
         @media (max-width: 600px) {
             main {
                 margin: 1.5rem auto 3.5rem;
-                padding: 0 1rem 3rem;
+                padding: 0 1rem 5rem;
             }
 
-            .card h2 {
-                font-size: 1.35rem;
+            .floating-footer {
+                bottom: 1rem;
+                right: 1rem;
+                left: 1rem;
+                text-align: center;
             }
         }
     </style>
@@ -133,15 +193,240 @@
         </div>
     </header>
     <main>
-        <div class="feature-image">
-            <img src="https://i.imgur.com/L2LMuoF.jpeg" alt="Health worker measuring weight and height of a child">
-        </div>
-        <section class="card">
-            <h2>Tracking Every Milestone</h2>
-            <p>Routine growth monitoring helps us identify nutritional gaps early. We maintain detailed records for every child, ensuring they receive personalized care and timely referrals when needed.</p>
-            <p>Monthly assessment days bring families together, offering guidance on healthy routines, suggested activities, and follow-up support. We believe informed parents and active monitoring create brighter futures.</p>
+        <section class="tracker-grid">
+            <article class="tracker-card" aria-live="polite">
+                <h2>Baby Height &amp; Weight Tracker</h2>
+                <div class="input-group">
+                    <label for="gender-select">Gender</label>
+                    <select id="gender-select" name="gender">
+                        <option value="BOY">BOY</option>
+                        <option value="GIRL">GIRL</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="age-select">Age</label>
+                    <select id="age-select" name="age"></select>
+                </div>
+                <button type="button" class="action-button" id="show-button">Show Height &amp; Weight</button>
+                <div class="results" id="results" aria-live="polite">
+                    <span id="height-display">Height: -</span>
+                    <span id="weight-display">Weight: -</span>
+                </div>
+            </article>
         </section>
     </main>
-    <footer>developed by ruhan</footer>
+    <footer class="floating-footer">developed by ruhan</footer>
+    <script>
+        const data = {
+            "BOY": {
+                0: { height: "49.9 cm", weight: "3.4 kg" },
+                1: { height: "54.7 cm", weight: "4.5 kg" },
+                2: { height: "58.4 cm", weight: "5.6 kg" },
+                3: { height: "61.4 cm", weight: "6.4 kg" },
+                4: { height: "63.9 cm", weight: "7 kg" },
+                5: { height: "65.9 cm", weight: "7.5 kg" },
+                6: { height: "67.6 cm", weight: "7.9 kg" },
+                7: { height: "69.2 cm", weight: "8.3 kg" },
+                8: { height: "70.6 cm", weight: "8.6 kg" },
+                9: { height: "72 cm", weight: "8.9 kg" },
+                10: { height: "73.3 cm", weight: "9.2 kg" },
+                11: { height: "74.5 cm", weight: "9.4 kg" },
+                12: { height: "75.8 cm", weight: "9.7 kg" },
+                13: { height: "76.9 cm", weight: "9.9 kg" },
+                14: { height: "78.1 cm", weight: "10.1 kg" },
+                15: { height: "79.2 cm", weight: "10.3 kg" },
+                16: { height: "80.2 cm", weight: "10.5 kg" },
+                17: { height: "81.3 cm", weight: "10.7 kg" },
+                18: { height: "82.3 cm", weight: "10.9 kg" },
+                19: { height: "83.2 cm", weight: "11.1 kg" },
+                20: { height: "84.2 cm", weight: "11.4 kg" },
+                21: { height: "85.1 cm", weight: "11.6 kg" },
+                22: { height: "86.1 cm", weight: "11.8 kg" },
+                23: { height: "86.9 cm", weight: "12 kg" },
+                24: { height: "86.5 cm", weight: "12.7 kg" },
+                25: { height: "87.7 cm", weight: "12.9 kg" },
+                26: { height: "88.9 cm", weight: "13.1 kg" },
+                27: { height: "89.11 cm", weight: "13.3 kg" },
+                28: { height: "91.1 cm", weight: "13.5 kg" },
+                29: { height: "91.3 cm", weight: "13.6 kg" },
+                30: { height: "91.7 cm", weight: "13.8 kg" },
+                31: { height: "92.9 cm", weight: "14 kg" },
+                32: { height: "93.11 cm", weight: "14.2 kg" },
+                33: { height: "94.5 cm", weight: "14.2 kg" },
+                34: { height: "94.9 cm", weight: "14.3 kg" },
+                35: { height: "95 cm", weight: "14.4 kg" },
+                36: { height: "95.3 cm", weight: "14.4 kg" },
+                37: { height: "96.5 cm", weight: "14.6 kg" },
+                38: { height: "96.9 cm", weight: "14.8 kg" },
+                39: { height: "97.3 cm", weight: "14.8 kg" },
+                40: { height: "98.9 cm", weight: "15 kg" },
+                41: { height: "99 cm", weight: "15.3 kg" },
+                42: { height: "99.5 cm", weight: "15.5 kg" },
+                43: { height: "99.9 cm", weight: "15.7 kg" },
+                44: { height: "100.3 cm", weight: "15.9 kg" },
+                45: { height: "100.7 cm", weight: "16 kg" },
+                46: { height: "101.5 cm", weight: "16.2 kg" },
+                47: { height: "101.9 cm", weight: "16.3 kg" },
+                48: { height: "102.5 cm", weight: "16.3 kg" },
+                49: { height: "102.9 cm", weight: "16.5 kg" },
+                50: { height: "103.7 cm", weight: "16.7 kg" },
+                51: { height: "104.3 cm", weight: "16.9 kg" },
+                52: { height: "104.9 cm", weight: "17.1 kg" },
+                53: { height: "105.9 cm", weight: "17.4 kg" },
+                54: { height: "106.3 cm", weight: "17.6 kg" },
+                55: { height: "106.7 cm", weight: "17.8 kg" },
+                56: { height: "107.5 cm", weight: "17.9 kg" },
+                57: { height: "107.9 cm", weight: "18.1 kg" },
+                58: { height: "108.1 cm", weight: "18.3 kg" },
+                59: { height: "108.9 cm", weight: "18.5 kg" },
+                60: { height: "109.2 cm", weight: "18.5 kg" },
+                61: { height: "109.5 cm", weight: "18.7 kg" },
+                62: { height: "109.9 cm", weight: "18.9 kg" },
+                63: { height: "110.5 cm", weight: "19.1 kg" },
+                64: { height: "111.3 cm", weight: "19.3 kg" },
+                65: { height: "111.9 cm", weight: "19.5 kg" },
+                66: { height: "112 cm", weight: "19.7 kg" },
+                67: { height: "112.7 cm", weight: "19.8 kg" },
+                68: { height: "113.3 cm", weight: "20 kg" },
+                69: { height: "113.8 cm", weight: "20.2 kg" },
+                70: { height: "114.2 cm", weight: "20.4 kg" },
+                71: { height: "114.9 cm", weight: "20.6 kg" },
+                72: { height: "115.7 cm", weight: "20.8 kg" }
+            },
+            "GIRL": {
+                0: { height: "49.2 cm", weight: "3.2 kg" },
+                1: { height: "53.7 cm", weight: "4.2 kg" },
+                2: { height: "57.1 cm", weight: "5.1 kg" },
+                3: { height: "59.8 cm", weight: "5.9 kg" },
+                4: { height: "62.1 cm", weight: "6.4 kg" },
+                5: { height: "64 cm", weight: "6.9 kg" },
+                6: { height: "65.7 cm", weight: "7.3 kg" },
+                7: { height: "67.3 cm", weight: "7.6 kg" },
+                8: { height: "68.8 cm", weight: "8 kg" },
+                9: { height: "70.1 cm", weight: "8.2 kg" },
+                10: { height: "71.5 cm", weight: "8.5 kg" },
+                11: { height: "72.8 cm", weight: "8.7 kg" },
+                12: { height: "74 cm", weight: "9 kg" },
+                13: { height: "75.2 cm", weight: "9.2 kg" },
+                14: { height: "76.4 cm", weight: "9.4 kg" },
+                15: { height: "77.5 cm", weight: "9.6 kg" },
+                16: { height: "78.6 cm", weight: "9.8 kg" },
+                17: { height: "79.7 cm", weight: "10 kg" },
+                18: { height: "80.7 cm", weight: "10.2 kg" },
+                19: { height: "81.7 cm", weight: "10.4 kg" },
+                20: { height: "82.7 cm", weight: "10.7 kg" },
+                21: { height: "83.7 cm", weight: "10.9 kg" },
+                22: { height: "84.6 cm", weight: "11.1 kg" },
+                23: { height: "85.5 cm", weight: "11.3 kg" },
+                24: { height: "86 cm", weight: "12.1 kg" },
+                25: { height: "86.2 cm", weight: "12.3 kg" },
+                26: { height: "87.4 cm", weight: "12.5 kg" },
+                27: { height: "88.6 cm", weight: "12.7 kg" },
+                28: { height: "89.8 cm", weight: "12.9 kg" },
+                29: { height: "90.3 cm", weight: "13 kg" },
+                30: { height: "91.5 cm", weight: "13.2 kg" },
+                31: { height: "91.9 cm", weight: "13.2 kg" },
+                32: { height: "92.1 cm", weight: "13.6 kg" },
+                33: { height: "92.7 cm", weight: "13.6 kg" },
+                34: { height: "93.5 cm", weight: "13.8 kg" },
+                35: { height: "93.9 cm", weight: "13.9 kg" },
+                36: { height: "94.2 cm", weight: "13.9 kg" },
+                37: { height: "94.7 cm", weight: "13.11 kg" },
+                38: { height: "95.3 cm", weight: "14.1 kg" },
+                39: { height: "96.9 cm", weight: "14.3 kg" },
+                40: { height: "97 cm", weight: "14.5 kg" },
+                41: { height: "97.7 cm", weight: "14.9 kg" },
+                42: { height: "98.9 cm", weight: "15.1 kg" },
+                43: { height: "99.3 cm", weight: "15.3 kg" },
+                44: { height: "99.7 cm", weight: "15.5 kg" },
+                45: { height: "100 cm", weight: "15.7 kg" },
+                46: { height: "100.5 cm", weight: "15.8 kg" },
+                47: { height: "100.9 cm", weight: "15.9 kg" },
+                48: { height: "101 cm", weight: "15.9 kg" },
+                49: { height: "101.7 cm", weight: "16 kg" },
+                50: { height: "102.5 cm", weight: "16.2 kg" },
+                51: { height: "103 cm", weight: "16.4 kg" },
+                52: { height: "103.7 cm", weight: "16.6 kg" },
+                53: { height: "104.5 cm", weight: "16.9 kg" },
+                54: { height: "105.3 cm", weight: "17 kg" },
+                55: { height: "105.9 cm", weight: "17.3 kg" },
+                56: { height: "106.5 cm", weight: "17.5 kg" },
+                57: { height: "106.9 cm", weight: "17.7 kg" },
+                58: { height: "107.7 cm", weight: "17.9 kg" },
+                59: { height: "107.9 cm", weight: "18 kg" },
+                60: { height: "108 cm", weight: "18 kg" },
+                61: { height: "108.7 cm", weight: "18.2 kg" },
+                62: { height: "109 cm", weight: "18.4 kg" },
+                63: { height: "109.5 cm", weight: "18.6 kg" },
+                64: { height: "109.9 cm", weight: "18.8 kg" },
+                65: { height: "110.3 cm", weight: "19 kg" },
+                66: { height: "110.7 cm", weight: "19.2 kg" },
+                67: { height: "111 cm", weight: "19.4 kg" },
+                68: { height: "111.5 cm", weight: "19.6 kg" },
+                69: { height: "112.7 cm", weight: "19.7 kg" },
+                70: { height: "113.5 cm", weight: "19.9 kg" },
+                71: { height: "114.7 cm", weight: "20.1 kg" },
+                72: { height: "115 cm", weight: "20.3 kg" }
+            }
+        };
+
+        const genderSelect = document.getElementById("gender-select");
+        const ageSelect = document.getElementById("age-select");
+        const showButton = document.getElementById("show-button");
+        const heightDisplay = document.getElementById("height-display");
+        const weightDisplay = document.getElementById("weight-display");
+
+        const buildAgeLabel = months => {
+            if (months === 0) return "0 Months";
+            if (months === 1) return "1 Month";
+            const years = Math.floor(months / 12);
+            const remainingMonths = months % 12;
+
+            if (years === 0) {
+                return `${months} Months`;
+            }
+
+            const yearLabel = years === 1 ? "1 Year" : `${years} Years`;
+            if (remainingMonths === 0) {
+                return yearLabel;
+            }
+
+            const monthLabel = remainingMonths === 1 ? "1 Month" : `${remainingMonths} Months`;
+            return `${yearLabel} ${monthLabel}`;
+        };
+
+        const populateAgeOptions = () => {
+            const fragment = document.createDocumentFragment();
+            for (let month = 0; month <= 72; month += 1) {
+                const option = document.createElement("option");
+                option.value = month;
+                option.textContent = buildAgeLabel(month);
+                fragment.appendChild(option);
+            }
+            ageSelect.appendChild(fragment);
+        };
+
+        const updateResults = () => {
+            const gender = genderSelect.value;
+            const ageInMonths = Number.parseInt(ageSelect.value, 10);
+            const record = data[gender]?.[ageInMonths];
+
+            if (!record) {
+                heightDisplay.textContent = "Height: -";
+                weightDisplay.textContent = "Weight: -";
+                return;
+            }
+
+            heightDisplay.textContent = `Height: ${record.height}`;
+            weightDisplay.textContent = `Weight: ${record.weight}`;
+        };
+
+        populateAgeOptions();
+        updateResults();
+
+        showButton.addEventListener("click", updateResults);
+        genderSelect.addEventListener("change", updateResults);
+        ageSelect.addEventListener("change", updateResults);
+    </script>
 </body>
 </html>
