@@ -70,39 +70,6 @@
             gap: clamp(1.5rem, 4vw, 2.5rem);
         }
 
-        .feature-image {
-            width: 100%;
-            border-radius: 1.25rem;
-            overflow: hidden;
-            box-shadow: 0 16px 35px rgba(66, 66, 66, 0.18);
-        }
-
-        .feature-image img {
-            display: block;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .card {
-            background-color: #ffffff;
-            border-radius: 1.25rem;
-            padding: clamp(1.5rem, 4vw, 2.25rem);
-            box-shadow: 0 12px 28px rgba(66, 66, 66, 0.15);
-            border: 1px solid rgba(66, 66, 66, 0.08);
-        }
-
-        .card h2 {
-            margin: 0 0 1rem;
-            font-size: 1.5rem;
-            color: var(--brand-dark);
-        }
-
-        .card p {
-            margin: 0 0 1rem;
-            line-height: 1.7;
-        }
-
         .visually-hidden {
             position: absolute;
             width: 1px;
@@ -150,13 +117,104 @@
             outline: none;
         }
 
+        .form-panel {
+            background: #ffffff;
+            padding: clamp(1.25rem, 3.5vw, 2.2rem);
+            border-radius: 1.25rem;
+            box-shadow: 0 12px 28px rgba(66, 66, 66, 0.12);
+            border: 1px solid rgba(66, 66, 66, 0.08);
+            display: grid;
+            gap: clamp(1rem, 3vw, 1.5rem);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: clamp(1rem, 3vw, 1.5rem);
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+        }
+
+        .field label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--brand-dark);
+        }
+
+        .field input {
+            padding: 0.8rem 1rem;
+            border-radius: 0.85rem;
+            border: 1px solid rgba(66, 66, 66, 0.18);
+            font-size: 1rem;
+            background-color: var(--brand-surface);
+            color: var(--brand-dark);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .field input:focus-visible {
+            border-color: var(--brand-accent);
+            box-shadow: 0 0 0 3px rgba(104, 159, 56, 0.25);
+            outline: none;
+        }
+
+        .requirements {
+            font-size: 0.85rem;
+            color: rgba(66, 66, 66, 0.7);
+            line-height: 1.5;
+        }
+
+        .form-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .form-actions button {
+            background-color: var(--brand-primary);
+            color: var(--brand-surface);
+            border: none;
+            border-radius: 999px;
+            padding: 0.85rem 1.75rem;
+            font-size: 0.95rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-actions button:hover,
+        .form-actions button:focus-visible {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 124, 0, 0.35);
+            outline: none;
+        }
+
+        .form-actions button:disabled {
+            background-color: rgba(245, 124, 0, 0.6);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .error-text {
+            color: #c62828;
+            font-size: 0.85rem;
+        }
+
         .table-wrapper {
             background: #ffffff;
             border-radius: 1.25rem;
             border: 1px solid rgba(66, 66, 66, 0.08);
             box-shadow: 0 12px 28px rgba(66, 66, 66, 0.12);
             overflow: hidden;
-        }
+    }
 
         .table-scroll {
             overflow-x: auto;
@@ -246,17 +304,40 @@
         </div>
     </header>
     <main>
-        <div class="feature-image">
-            <img src="https://i.imgur.com/KCrNgOi.jpeg" alt="Community records and beneficiary documentation">
-        </div>
-        <section class="card">
-            <h2>Every Family Matters</h2>
-            <p>Accurate beneficiary records help us reach mothers, children, and expecting families with the right support at the right time. We maintain digitized registers, track entitlements, and coordinate with health workers for timely interventions.</p>
-            <p>From immunization schedules to scheme eligibility, our team ensures every household receives the benefits they deserve. Community volunteers assist with updates so no one is left behind.</p>
-        </section>
         <section class="search-panel" aria-label="Search beneficiaries">
             <label for="beneficiary-search">Search Beneficiaries</label>
             <input id="beneficiary-search" type="search" name="search" placeholder="Search by name, Aadhar or phone" autocomplete="off" spellcheck="false">
+        </section>
+        <section class="form-panel" aria-labelledby="add-beneficiary-title">
+            <h2 id="add-beneficiary-title">Add Beneficiary</h2>
+            <p class="requirements">Aadhar must be in <strong>XXXX XXXX XXXX</strong> format. Phone number is optional but must contain 10 digits when provided.</p>
+            <form id="beneficiary-form" novalidate>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="beneficiary-name">Name</label>
+                        <input id="beneficiary-name" name="name" type="text" placeholder="Enter full name" required>
+                        <p class="error-text" data-error="name"></p>
+                    </div>
+                    <div class="field">
+                        <label for="beneficiary-aadhar">Aadhar Number</label>
+                        <input id="beneficiary-aadhar" name="aadhar" type="text" inputmode="numeric" placeholder="1234 5678 9012" required maxlength="14">
+                        <p class="error-text" data-error="aadhar"></p>
+                    </div>
+                    <div class="field">
+                        <label for="beneficiary-dob">D.O.B</label>
+                        <input id="beneficiary-dob" name="dob" type="date" required>
+                        <p class="error-text" data-error="dob"></p>
+                    </div>
+                    <div class="field">
+                        <label for="beneficiary-phone">Phone Number <span aria-hidden="true">(Optional)</span></label>
+                        <input id="beneficiary-phone" name="phone" type="tel" inputmode="numeric" placeholder="9876543210" maxlength="10">
+                        <p class="error-text" data-error="phone"></p>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit">Add Beneficiary</button>
+                </div>
+            </form>
         </section>
         <section class="table-wrapper table-scroll" aria-labelledby="beneficiary-table-title">
             <table id="beneficiary-table">
@@ -306,15 +387,111 @@
     <footer class="floating-footer">developed by ruhan</footer>
     <script>
         const searchInput = document.getElementById("beneficiary-search");
-        const tableRows = Array.from(document.querySelectorAll("#beneficiary-table tbody tr"));
+        const tableBody = document.querySelector("#beneficiary-table tbody");
+        const form = document.getElementById("beneficiary-form");
+        const errorEls = {
+            name: document.querySelector('[data-error="name"]'),
+            aadhar: document.querySelector('[data-error="aadhar"]'),
+            dob: document.querySelector('[data-error="dob"]'),
+            phone: document.querySelector('[data-error="phone"]')
+        };
 
-        searchInput.addEventListener("input", () => {
-            const query = searchInput.value.trim().toLowerCase();
+        const existingRows = Array.from(tableBody.querySelectorAll("tr"));
 
-            tableRows.forEach(row => {
+        const validateAadhar = value => /^\d{4} \d{4} \d{4}$/.test(value.trim());
+        const validatePhone = value => value === "" || /^\d{10}$/.test(value.trim());
+
+        const filterRows = query => {
+            const rows = Array.from(tableBody.querySelectorAll("tr"));
+            rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 row.style.display = text.includes(query) ? "table-row" : "none";
             });
+        };
+
+        searchInput.addEventListener("input", () => {
+            const query = searchInput.value.trim().toLowerCase();
+            filterRows(query);
+        });
+
+        const formatAadharInput = value => {
+            const digits = value.replace(/\D/g, "").slice(0, 12);
+            const parts = digits.match(/.{1,4}/g) || [];
+            return parts.join(" ");
+        };
+
+        const resetErrors = () => {
+            Object.values(errorEls).forEach(el => {
+                el.textContent = "";
+            });
+        };
+
+        const showError = (field, message) => {
+            errorEls[field].textContent = message;
+        };
+
+        const clearForm = () => {
+            form.reset();
+        };
+
+        document.getElementById("beneficiary-aadhar").addEventListener("input", event => {
+            event.target.value = formatAadharInput(event.target.value);
+        });
+
+        document.getElementById("beneficiary-phone").addEventListener("input", event => {
+            event.target.value = event.target.value.replace(/\D/g, "").slice(0, 10);
+        });
+
+        form.addEventListener("submit", event => {
+            event.preventDefault();
+            resetErrors();
+
+            const formData = new FormData(form);
+            const name = formData.get("name").trim();
+            const aadhar = formData.get("aadhar").trim();
+            const dob = formData.get("dob");
+            const phone = formData.get("phone").trim();
+
+            let valid = true;
+
+            if (!name) {
+                showError("name", "Name is required.");
+                valid = false;
+            }
+
+            if (!validateAadhar(aadhar)) {
+                showError("aadhar", "Enter a 12-digit Aadhar in XXXX XXXX XXXX format.");
+                valid = false;
+            }
+
+            if (!dob) {
+                showError("dob", "Date of birth is required.");
+                valid = false;
+            }
+
+            if (!validatePhone(phone)) {
+                showError("phone", "Phone must be 10 digits if provided.");
+                valid = false;
+            }
+
+            if (!valid) {
+                return;
+            }
+
+            const rowCount = tableBody.querySelectorAll("tr").length;
+
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td>${rowCount + 1}</td>
+                <td>${name}</td>
+                <td>${aadhar}</td>
+                <td>${dob.split("-").reverse().join("-")}</td>
+                <td>${phone || "-"}</td>
+            `;
+
+            tableBody.appendChild(newRow);
+            filterRows(searchInput.value.trim().toLowerCase());
+            clearForm();
         });
     </script>
 </body>
