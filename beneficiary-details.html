@@ -224,6 +224,27 @@
             color: #c62828;
         }
 
+        .form-actions .secondary-button {
+            background-color: transparent;
+            color: var(--brand-primary);
+            border: 1px solid rgba(245, 124, 0, 0.6);
+            border-radius: 999px;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+
+        .form-actions .secondary-button:hover,
+        .form-actions .secondary-button:focus-visible {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(245, 124, 0, 0.25);
+            background-color: rgba(245, 124, 0, 0.1);
+            outline: none;
+        }
+
         .table-wrapper {
             background: #ffffff;
             border-radius: 1.25rem;
@@ -264,6 +285,39 @@
 
         .table-wrapper:focus-within {
             box-shadow: 0 16px 35px rgba(66, 66, 66, 0.18);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-start;
+        }
+
+        .action-button {
+            border: none;
+            border-radius: 999px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        }
+
+        .action-button:focus-visible,
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(66, 66, 66, 0.15);
+        }
+
+        .action-button.edit {
+            background-color: rgba(104, 159, 56, 0.12);
+            color: var(--brand-accent);
+        }
+
+        .action-button.delete {
+            background-color: rgba(198, 40, 40, 0.12);
+            color: #c62828;
         }
 
         .floating-footer {
@@ -346,6 +400,7 @@
                     </div>
                 </div>
                 <div class="form-actions">
+                    <button type="button" class="secondary-button" data-action="cancel-edit" hidden>Cancel</button>
                     <button type="submit">Add Beneficiary</button>
                 </div>
                 <p class="form-status" data-status></p>
@@ -362,6 +417,7 @@
                             <th scope="col">Aadhar Number</th>
                             <th scope="col">D.O.B</th>
                             <th scope="col">Phone No.</th>
+                            <th scope="col">Actions</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -380,7 +436,10 @@
             serverTimestamp,
             onSnapshot,
             query,
-            orderBy
+            orderBy,
+            doc,
+            updateDoc,
+            deleteDoc
         } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -408,6 +467,7 @@
         const tableBody = document.querySelector("#beneficiary-table tbody");
         const form = document.getElementById("beneficiary-form");
         const submitButton = form.querySelector('button[type="submit"]');
+        const cancelButton = form.querySelector('[data-action="cancel-edit"]');
         const statusEl = document.querySelector("[data-status]");
         const errorEls = {
             name: document.querySelector('[data-error="name"]'),
@@ -415,6 +475,9 @@
             dob: document.querySelector('[data-error="dob"]'),
             phone: document.querySelector('[data-error="phone"]')
         };
+
+        let editingId = null;
+        submitButton.dataset.mode = "add";
 
         const validateAadhar = value => /^\d{4} \d{4} \d{4}$/.test(value.trim());
         const validatePhone = value => value === "" || /^\d{10}$/.test(value.trim());
@@ -447,10 +510,19 @@
             statusEl.dataset.state = state;
         };
 
-        const clearForm = () => {
+        const exitEditMode = () => {
+            editingId = null;
+            submitButton.textContent = "Add Beneficiary";
+            submitButton.dataset.mode = "add";
+            cancelButton.hidden = true;
             form.reset();
+            resetErrors();
             setStatus();
         };
+
+        cancelButton.addEventListener("click", () => {
+            exitEditMode();
+        });
 
         document.getElementById("beneficiary-aadhar").addEventListener("input", event => {
             event.target.value = formatAadharInput(event.target.value);
@@ -468,7 +540,7 @@
             if (rows.length === 0) {
                 const emptyRow = document.createElement("tr");
                 const cell = document.createElement("td");
-                cell.colSpan = 5;
+                cell.colSpan = 6;
                 cell.textContent = "No beneficiaries found.";
                 cell.style.textAlign = "center";
                 cell.style.padding = "1.5rem";
@@ -485,6 +557,12 @@
                     <td>${entry.aadhar}</td>
                     <td>${formatDobForDisplay(entry.dob)}</td>
                     <td>${entry.phone || "-"}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="action-button edit" type="button" data-action="edit" data-id="${entry.id}">Edit</button>
+                            <button class="action-button delete" type="button" data-action="delete" data-id="${entry.id}">Delete</button>
+                        </div>
+                    </td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -519,6 +597,56 @@
                 };
             });
             applyFilter();
+        });
+
+        tableBody.addEventListener("click", async event => {
+            const actionButton = event.target.closest("button[data-action]");
+            if (!actionButton) {
+                return;
+            }
+
+            const { action, id } = actionButton.dataset;
+            const entry = beneficiaries.find(item => item.id === id);
+            if (!entry) {
+                return;
+            }
+
+            if (action === "edit") {
+                editingId = id;
+                form.elements.name.value = entry.name;
+                form.elements.aadhar.value = entry.aadhar;
+                form.elements.dob.value = entry.dob;
+                form.elements.phone.value = entry.phone || "";
+                submitButton.textContent = "Update Beneficiary";
+                submitButton.dataset.mode = "edit";
+                cancelButton.hidden = false;
+                setStatus("Editing beneficiary. Make changes and click update.", "info");
+                window.scrollTo({ top: form.offsetTop - 40, behavior: "smooth" });
+                return;
+            }
+
+            if (action === "delete") {
+                const confirmDelete = window.confirm("Delete this beneficiary?");
+                if (!confirmDelete) {
+                    return;
+                }
+
+                actionButton.disabled = true;
+                setStatus("Deleting beneficiary...", "info");
+
+                try {
+                    const docRef = doc(db, "beneficiaries", id);
+                    await deleteDoc(docRef);
+                    if (editingId === id) {
+                        exitEditMode();
+                    }
+                    setStatus("Beneficiary deleted.", "success");
+                } catch (error) {
+                    console.error("Failed to delete beneficiary", error);
+                    setStatus("Failed to delete beneficiary. Please try again.", "error");
+                    actionButton.disabled = false;
+                }
+            }
         });
 
         form.addEventListener("submit", async event => {
@@ -559,23 +687,43 @@
             }
 
             submitButton.disabled = true;
-            setStatus("Saving beneficiary...", "info");
+            const mode = editingId ? "edit" : "add";
+            setStatus(mode === "edit" ? "Updating beneficiary..." : "Saving beneficiary...", "info");
 
             try {
-                await addDoc(beneficiariesRef, {
-                    name,
-                    aadhar,
-                    dob,
-                    phone,
-                    createdAt: serverTimestamp()
-                });
-                setStatus("Beneficiary saved successfully.", "success");
-                form.reset();
+                if (mode === "edit") {
+                    const docRef = doc(db, "beneficiaries", editingId);
+                    await updateDoc(docRef, {
+                        name,
+                        aadhar,
+                        dob,
+                        phone,
+                        updatedAt: serverTimestamp()
+                    });
+                    setStatus("Beneficiary updated successfully.", "success");
+                    exitEditMode();
+                } else {
+                    await addDoc(beneficiariesRef, {
+                        name,
+                        aadhar,
+                        dob,
+                        phone,
+                        createdAt: serverTimestamp()
+                    });
+                    setStatus("Beneficiary saved successfully.", "success");
+                    form.reset();
+                }
             } catch (error) {
                 console.error("Failed to save beneficiary", error);
                 setStatus("Failed to save beneficiary. Please try again.", "error");
             } finally {
                 submitButton.disabled = false;
+            }
+        });
+
+        window.addEventListener("beforeunload", () => {
+            if (editingId) {
+                exitEditMode();
             }
         });
     </script>
