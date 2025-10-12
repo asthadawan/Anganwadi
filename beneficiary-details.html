@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beneficiary Details | Sheikh Mohalla Upper Mohora</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --brand-primary: #F57C00;
+            --brand-secondary: #FFEB3B;
+            --brand-accent: #689F38;
+            --brand-surface: #FFF8E1;
+            --brand-dark: #424242;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--brand-surface);
+            color: var(--brand-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--brand-dark);
+            color: var(--brand-surface);
+            border-bottom: 4px solid var(--brand-secondary);
+        }
+
+        .header-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem clamp(1.25rem, 4vw, 2.5rem);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .header-content h1 {
+            margin: 0;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            letter-spacing: 0.06em;
+        }
+
+        .back-link {
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            text-decoration: none;
+            color: var(--brand-secondary);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .back-link:hover,
+        .back-link:focus-visible {
+            color: #ffffff;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1100px;
+            margin: clamp(2rem, 6vw, 4rem) auto;
+            padding: 0 clamp(1.25rem, 5vw, 2.5rem) 4rem;
+            display: grid;
+            gap: clamp(1.5rem, 4vw, 2.5rem);
+        }
+
+        .feature-image {
+            width: 100%;
+            border-radius: 1.25rem;
+            overflow: hidden;
+            box-shadow: 0 16px 35px rgba(66, 66, 66, 0.18);
+        }
+
+        .feature-image img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 1.25rem;
+            padding: clamp(1.5rem, 4vw, 2.25rem);
+            box-shadow: 0 12px 28px rgba(66, 66, 66, 0.15);
+            border: 1px solid rgba(66, 66, 66, 0.08);
+        }
+
+        .card h2 {
+            margin: 0 0 1rem;
+            font-size: 1.5rem;
+            color: var(--brand-dark);
+        }
+
+        .card p {
+            margin: 0 0 1rem;
+            line-height: 1.7;
+        }
+
+        footer {
+            background-color: var(--brand-dark);
+            color: var(--brand-surface);
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 600px) {
+            main {
+                margin: 1.5rem auto 3.5rem;
+                padding: 0 1rem 3rem;
+            }
+
+            .card h2 {
+                font-size: 1.35rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a class="back-link" href="index.html">&#8592; Back to overview</a>
+            <h1>Beneficiary Details</h1>
+        </div>
+    </header>
+    <main>
+        <div class="feature-image">
+            <img src="https://i.imgur.com/KCrNgOi.jpeg" alt="Community records and beneficiary documentation">
+        </div>
+        <section class="card">
+            <h2>Every Family Matters</h2>
+            <p>Accurate beneficiary records help us reach mothers, children, and expecting families with the right support at the right time. We maintain digitized registers, track entitlements, and coordinate with health workers for timely interventions.</p>
+            <p>From immunization schedules to scheme eligibility, our team ensures every household receives the benefits they deserve. Community volunteers assist with updates so no one is left behind.</p>
+        </section>
+    </main>
+    <footer>developed by ruhan</footer>
+</body>
+</html>

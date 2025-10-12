@@ -19,6 +19,7 @@
 			font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 			background-color: var(--brand-surface);
 			color: var(--brand-dark);
+			overflow-x: hidden;
 		}
 
 		.site-header {
@@ -62,11 +63,19 @@
 			display: flex;
 			flex-direction: column;
 			transition: transform 0.3s ease, box-shadow 0.3s ease;
+			text-decoration: none;
+			color: inherit;
 		}
 
-		.info-card:hover {
+		.info-card:hover,
+		.info-card:focus-visible {
 			transform: translateY(-6px);
 			box-shadow: 0 18px 38px rgba(66, 66, 66, 0.18);
+		}
+
+		.info-card:focus-visible {
+			outline: 3px solid var(--brand-accent);
+			outline-offset: 4px;
 		}
 
 		.card-image {
@@ -104,6 +113,16 @@
 			box-shadow: 0 10px 25px rgba(66, 66, 66, 0.25);
 		}
 
+		@media (max-width: 768px) {
+			.card-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.card-title {
+				padding: 1.25rem 1.5rem;
+			}
+		}
+
 		@media (max-width: 480px) {
 			.header-content {
 				padding: 2rem 1rem;
@@ -135,24 +154,24 @@
 	</header>
 	<main>
 		<div class="card-grid">
-			<article class="info-card">
+			<a class="info-card" href="nutrition.html">
 				<div class="card-image">
 					<img src="https://i.imgur.com/oK1PZfF.jpeg" alt="Child receiving nutritional care">
 				</div>
 				<h2 class="card-title">Nutrition</h2>
-			</article>
-			<article class="info-card">
+			</a>
+			<a class="info-card" href="weight-height.html">
 				<div class="card-image">
 					<img src="https://i.imgur.com/L2LMuoF.jpeg" alt="Health worker measuring weight and height">
 				</div>
 				<h2 class="card-title">Weight &amp; Height</h2>
-			</article>
-			<article class="info-card">
+			</a>
+			<a class="info-card" href="beneficiary-details.html">
 				<div class="card-image">
 					<img src="https://i.imgur.com/KCrNgOi.jpeg" alt="Community records for beneficiaries">
 				</div>
 				<h2 class="card-title">Beneficiary Details</h2>
-			</article>
+			</a>
 		</div>
 	</main>
 	<footer class="floating-footer">developed by ruhan</footer>
