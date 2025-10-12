@@ -66,42 +66,115 @@
             flex: 1;
             max-width: 1100px;
             margin: clamp(2rem, 6vw, 4rem) auto;
-            padding: 0 clamp(1.25rem, 5vw, 2.5rem) 4rem;
+            padding: 0 clamp(1.25rem, 5vw, 2.5rem) clamp(4rem, 8vw, 6rem);
             display: grid;
             gap: clamp(1.5rem, 4vw, 2.5rem);
         }
 
-        .feature-image {
-            width: 100%;
-            border-radius: 1.25rem;
-            overflow: hidden;
-            box-shadow: 0 16px 35px rgba(66, 66, 66, 0.18);
+        .calculator-grid {
+            display: grid;
+            gap: clamp(1.5rem, 4vw, 2.25rem);
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
         }
 
-        .feature-image img {
-            display: block;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .card {
+        .calculator-card {
             background-color: #ffffff;
             border-radius: 1.25rem;
             padding: clamp(1.5rem, 4vw, 2.25rem);
             box-shadow: 0 12px 28px rgba(66, 66, 66, 0.15);
             border: 1px solid rgba(66, 66, 66, 0.08);
+            display: grid;
+            gap: 1rem;
         }
 
-        .card h2 {
-            margin: 0 0 1rem;
-            font-size: 1.5rem;
+        .calculator-card h2 {
+            margin: 0;
+            font-size: 1.1rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
             color: var(--brand-primary);
         }
 
-        .card p {
-            margin: 0 0 1rem;
-            line-height: 1.7;
+        .input-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-row label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--brand-dark);
+        }
+
+        .input-row input[type="number"] {
+            padding: 0.85rem 1rem;
+            border-radius: 0.85rem;
+            border: 1px solid rgba(66, 66, 66, 0.18);
+            font-size: 1rem;
+            background-color: var(--brand-surface);
+            color: var(--brand-dark);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            appearance: textfield;
+            -moz-appearance: textfield;
+        }
+
+        .input-row input[type="number"]::-webkit-outer-spin-button,
+        .input-row input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .input-row input[type="number"]:focus-visible {
+            border-color: var(--brand-accent);
+            box-shadow: 0 0 0 3px rgba(104, 159, 56, 0.25);
+            outline: none;
+        }
+
+        .result-display {
+            background-color: rgba(245, 124, 0, 0.08);
+            border-radius: 0.85rem;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: var(--brand-primary);
+        }
+
+        .result-display span:last-child {
+            font-size: 1.25rem;
+            color: var(--brand-dark);
+        }
+
+        .total-card {
+            background-color: var(--brand-dark);
+            color: var(--brand-surface);
+            border-radius: 1.25rem;
+            padding: clamp(1.75rem, 5vw, 2.75rem);
+            box-shadow: 0 16px 35px rgba(66, 66, 66, 0.2);
+            display: grid;
+            gap: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .total-card span {
+            font-size: 0.95rem;
+            opacity: 0.8;
+        }
+
+        .total-card strong {
+            font-size: clamp(1.75rem, 5vw, 2.5rem);
+        }
+
+        .status-note {
+            margin: 0;
+            font-size: 0.9rem;
+            color: rgba(66, 66, 66, 0.7);
         }
 
         footer {
@@ -133,15 +206,99 @@
         </div>
     </header>
     <main>
-        <div class="feature-image">
-            <img src="https://i.imgur.com/oK1PZfF.jpeg" alt="Child receiving nutritional care in the anganwadi center">
-        </div>
-        <section class="card">
-            <h2>Helping Children Grow Strong</h2>
-            <p>Our nutrition program ensures every child receives balanced meals, growth monitoring, and timely supplements. We work closely with families to promote healthy habits that keep children energized and ready to learn.</p>
-            <p>Daily hot meals, seasonal menu rotations, and locally sourced ingredients help us deliver wholesome nourishment. We also organize nutrition awareness sessions for mothers and caregivers, creating a supportive network around every child.</p>
+        <section class="status-note">Enter beneficiary counts for each group to calculate total nutrition requirements.</section>
+        <section class="calculator-grid" id="calculator-grid" aria-live="polite"></section>
+        <section class="total-card" aria-live="polite">
+            <span>Total Requirement</span>
+            <strong id="total-requirement">0</strong>
         </section>
     </main>
     <footer>developed by ruhan</footer>
+    <script>
+        const groups = [
+            { id: "pregnant", label: "Pregnant", base: 159 },
+            { id: "lactating", label: "Lactating", base: 159 },
+            { id: "children-6-36", label: "Children 6 months to 3 years", base: 150 },
+            { id: "children-3-6", label: "Children 3 to 6 years", base: 274 },
+            { id: "sam", label: "SAM (Severe Acute Malnutrition)", base: 224 },
+            { id: "adolescent", label: "Adolescent", base: 150 }
+        ];
+
+        const calculatorGrid = document.getElementById("calculator-grid");
+        const totalRequirementEl = document.getElementById("total-requirement");
+
+        const formatNumber = value => {
+            const number = Number.isFinite(value) ? value : 0;
+            return number.toLocaleString("en-IN");
+        };
+
+        const requirementByCount = (base, count) => base * 25 * count;
+
+        const createCard = group => {
+            const card = document.createElement("article");
+            card.className = "calculator-card";
+            card.innerHTML = `
+                <h2>${group.label}</h2>
+                <div class="input-row">
+                    <label for="${group.id}-count">Beneficiaries</label>
+                    <input id="${group.id}-count" type="number" min="0" step="1" value="0" inputmode="numeric" pattern="\\d*" aria-describedby="${group.id}-result" />
+                </div>
+                <div class="result-display" id="${group.id}-result" role="status" aria-live="polite">
+                    <span>Requirement</span>
+                    <span data-result="${group.id}">0</span>
+                </div>
+            `;
+            return card;
+        };
+
+        groups.forEach(group => {
+            const card = createCard(group);
+            calculatorGrid.appendChild(card);
+        });
+
+        const inputs = Array.from(calculatorGrid.querySelectorAll("input[type='number']"));
+
+        const state = groups.reduce((acc, group) => {
+            acc[group.id] = 0;
+            return acc;
+        }, {});
+
+        const updateResults = () => {
+            let total = 0;
+
+            groups.forEach(group => {
+                const count = state[group.id];
+                const result = requirementByCount(group.base, count);
+                calculatorGrid.querySelector(`[data-result="${group.id}"]`).textContent = formatNumber(result);
+                total += result;
+            });
+
+            totalRequirementEl.textContent = formatNumber(total);
+        };
+
+        inputs.forEach(input => {
+            input.addEventListener("input", event => {
+                const { id, value } = event.target;
+                const safeValue = value.trim();
+                const numericValue = Number.parseInt(safeValue, 10);
+                const normalized = Number.isNaN(numericValue) || numericValue < 0 ? 0 : numericValue;
+                event.target.value = normalized.toString();
+                const groupId = id.replace("-count", "");
+                state[groupId] = normalized;
+                updateResults();
+            });
+
+            input.addEventListener("blur", event => {
+                if (event.target.value === "") {
+                    event.target.value = "0";
+                    const groupId = event.target.id.replace("-count", "");
+                    state[groupId] = 0;
+                    updateResults();
+                }
+            });
+        });
+
+        updateResults();
+    </script>
 </body>
 </html>
