@@ -177,13 +177,18 @@
             color: rgba(66, 66, 66, 0.7);
         }
 
-        footer {
+        .floating-footer {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
             background-color: var(--brand-dark);
             color: var(--brand-surface);
-            text-align: center;
-            padding: 1rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 999px;
             font-size: 0.9rem;
             letter-spacing: 0.05em;
+            text-transform: uppercase;
+            box-shadow: 0 10px 25px rgba(66, 66, 66, 0.25);
         }
 
         @media (max-width: 600px) {
@@ -192,8 +197,11 @@
                 padding: 0 1rem 3rem;
             }
 
-            .card h2 {
-                font-size: 1.35rem;
+            .floating-footer {
+                bottom: 1rem;
+                right: 1rem;
+                left: 1rem;
+                text-align: center;
             }
         }
     </style>
@@ -213,7 +221,7 @@
             <strong id="total-requirement">0</strong>
         </section>
     </main>
-    <footer>developed by ruhan</footer>
+    <footer class="floating-footer">developed by ruhan</footer>
     <script>
         const groups = [
             { id: "pregnant", label: "Pregnant", base: 159 },
