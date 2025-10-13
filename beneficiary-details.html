@@ -400,6 +400,7 @@
                     </div>
                 </div>
                 <div class="form-actions">
+                    <button type="button" class="secondary-button" data-action="bulk-import">Bulk import remaining</button>
                     <button type="button" class="secondary-button" data-action="cancel-edit" hidden>Cancel</button>
                     <button type="submit">Add Beneficiary</button>
                 </div>
@@ -468,6 +469,7 @@
         const form = document.getElementById("beneficiary-form");
         const submitButton = form.querySelector('button[type="submit"]');
         const cancelButton = form.querySelector('[data-action="cancel-edit"]');
+        const bulkImportButton = form.querySelector('[data-action="bulk-import"]');
         const statusEl = document.querySelector("[data-status]");
         const errorEls = {
             name: document.querySelector('[data-error="name"]'),
@@ -487,6 +489,8 @@
             const parts = digits.match(/.{1,4}/g) || [];
             return parts.join(" ");
         };
+
+        const normalizeAadhar = value => value.replace(/\D/g, "");
 
         const formatDobForDisplay = value => {
             if (!value) return "-";
@@ -533,6 +537,81 @@
         });
 
         let beneficiaries = [];
+
+        const bulkEntries = [
+            { name: "Amir Ahmad", aadhar: "9343 3058 7254", dob: "2001-09-05", phone: "9541029951" },
+            { name: "Mohammad Rafiq Tantray", aadhar: "5778 8735 8710", dob: "1989-02-01", phone: "" },
+            { name: "Mehak Latief", aadhar: "3205 4152 7847", dob: "2005-03-04", phone: "" },
+            { name: "Nawaz Ahmad Tantray", aadhar: "4680 6392 2945", dob: "1983-05-04", phone: "" },
+            { name: "Touseef Ahmad", aadhar: "7196 8850 0706", dob: "1987-03-03", phone: "" },
+            { name: "Asmat Bashir", aadhar: "7769 2487 1730", dob: "2005-08-20", phone: "" },
+            { name: "Rukhsana Begum", aadhar: "7655 6506 0107", dob: "1986-04-02", phone: "" },
+            { name: "Mudasir Ahmad Tantray", aadhar: "3303 5366 4578", dob: "1989-02-20", phone: "" },
+            { name: "Sujeel Ahmad Tantary", aadhar: "7046 7618 7624", dob: "1997-01-21", phone: "" },
+            { name: "Mushtaq Ahmad Tantary", aadhar: "9135 0540 9337", dob: "1986-12-30", phone: "" },
+            { name: "Ishtayq Ahmad Tantary", aadhar: "3481 9579 2282", dob: "1992-03-04", phone: "9596390620" },
+            { name: "Waseem Ahmad", aadhar: "9245 9620 1280", dob: "1994-03-07", phone: "" },
+            { name: "Ishrat Bano", aadhar: "9706 0439 2602", dob: "1997-12-01", phone: "" },
+            { name: "Noorain Rameez", aadhar: "8736 9402 9133", dob: "2020-06-19", phone: "" },
+            { name: "Rizwana Aziz", aadhar: "3612 5674 6846", dob: "1998-07-29", phone: "8899426749" },
+            { name: "Shagufta Begum", aadhar: "6749 1839 7617", dob: "1987-04-20", phone: "9622882522" },
+            { name: "Misra Begum", aadhar: "5443 7559 3144", dob: "1990-01-01", phone: "7051619335" },
+            { name: "Nahida Begum", aadhar: "4486 6979 9014", dob: "1995-09-14", phone: "8492847730" },
+            { name: "Mohd Adeeb Ahmad Tantry", aadhar: "7787 2789 0149", dob: "2020-04-23", phone: "" },
+            { name: "Salma Begum", aadhar: "2705 8923 6944", dob: "1994-01-01", phone: "9541446324" },
+            { name: "Shagufta Begum", aadhar: "5100 9608 9399", dob: "1993-01-02", phone: "" },
+            { name: "Laiba Rayaz", aadhar: "5899 0570 5631", dob: "2019-02-27", phone: "" },
+            { name: "Ghulam Mustafa Sheikh", aadhar: "7488 7769 6422", dob: "1984-01-08", phone: "" },
+            { name: "Gulshan Begum", aadhar: "9529 7864 0671", dob: "1991-04-10", phone: "" },
+            { name: "RAKHSANA BANO", aadhar: "9725 7746 5951", dob: "1996-12-25", phone: "8082800475" },
+            { name: "Mohd Khurram Sheikh", aadhar: "2285 2909 4705", dob: "2018-02-27", phone: "" },
+            { name: "Turiya Bano", aadhar: "3801 1578 2248", dob: "2016-12-04", phone: "" },
+            { name: "MARIYAM BANO", aadhar: "7910 1505 7868", dob: "2015-05-05", phone: "" },
+            { name: "Nazmeena Begum", aadhar: "9859 9023 2128", dob: "1995-01-01", phone: "" },
+            { name: "ATIF AHMAD", aadhar: "4992 1131 4098", dob: "2018-03-08", phone: "" },
+            { name: "ZEENAT BANO", aadhar: "4930 1341 9880", dob: "2015-03-20", phone: "" },
+            { name: "Atifa Bano", aadhar: "3427 1720 4203", dob: "2019-08-20", phone: "" },
+            { name: "FARHAT BANO", aadhar: "4252 0039 5997", dob: "2017-02-20", phone: "" },
+            { name: "Ayesha Bano", aadhar: "8747 5041 6667", dob: "2020-07-27", phone: "" },
+            { name: "ALEENA BANO", aadhar: "5894 2184 8833", dob: "2017-09-04", phone: "" },
+            { name: "MANAN AHMAD", aadhar: "5170 8373 8313", dob: "2016-04-01", phone: "" },
+            { name: "Rubeena Begum", aadhar: "9296 1689 6660", dob: "1993-07-25", phone: "" },
+            { name: "ROHAAN RAFIQ", aadhar: "7243 8814 8108", dob: "2017-05-08", phone: "" },
+            { name: "Falak Latif", aadhar: "4485 6951 0532", dob: "2008-02-02", phone: "" },
+            { name: "Aqsa Irfan", aadhar: "6814 2252 7320", dob: "2019-08-06", phone: "" },
+            { name: "Amina Irfan", aadhar: "5229 5601 2767", dob: "2017-06-05", phone: "" },
+            { name: "Adil Ahmad Tantary", aadhar: "2990 6333 9545", dob: "1995-03-03", phone: "" },
+            { name: "TASLEEMA BANO", aadhar: "4888 1200 3830", dob: "1993-07-10", phone: "8899685484" },
+            { name: "Rozi Begum", aadhar: "9470 0096 0922", dob: "1997-03-10", phone: "" },
+            { name: "Aashiq Aziz Tantray", aadhar: "6283 6579 5773", dob: "1995-03-18", phone: "" },
+            { name: "Tabassum bano", aadhar: "5910 6423 6722", dob: "1998-05-01", phone: "" },
+            { name: "ASIYA BANO", aadhar: "3683 0843 1740", dob: "2001-01-19", phone: "" },
+            { name: "Shabnum Naz", aadhar: "2561 2363 1076", dob: "1993-12-10", phone: "9622284111" },
+            { name: "Heena Begum", aadhar: "2800 1239 4361", dob: "1995-01-01", phone: "9596390620" },
+            { name: "Raziya Nabi", aadhar: "3518 6312 3719", dob: "2004-05-14", phone: "7051533169" },
+            { name: "Parvaiz Ahmad Sheikh", aadhar: "4456 0239 6890", dob: "1995-05-04", phone: "" },
+            { name: "NISHAT BANO", aadhar: "4134 8635 7669", dob: "2000-01-06", phone: "" },
+            { name: "Fayaz Ahmad Sheikh", aadhar: "6837 7067 1870", dob: "2000-02-25", phone: "" },
+            { name: "Naira Fayaz", aadhar: "5009 2464 9219", dob: "2022-02-23", phone: "" },
+            { name: "UZMA BANO", aadhar: "3827 9000 6416", dob: "2016-05-05", phone: "" },
+            { name: "Haseena Begum", aadhar: "5205 4040 2046", dob: "1985-05-04", phone: "" },
+            { name: "Farooq Ahmad Tantray", aadhar: "3739 8436 0956", dob: "1978-03-10", phone: "" },
+            { name: "Tabasum Begum", aadhar: "4403 2029 0208", dob: "1994-01-01", phone: "" },
+            { name: "ANUM BANO", aadhar: "5462 0031 2822", dob: "2016-03-03", phone: "" },
+            { name: "Manzoor Ahmad Tantray", aadhar: "2684 7028 8785", dob: "1968-08-15", phone: "" },
+            { name: "Saika Saleem", aadhar: "8790 0057 4444", dob: "1996-02-01", phone: "" },
+            { name: "Haneefa Begum", aadhar: "9713 1925 7711", dob: "1955-11-04", phone: "" },
+            { name: "Naseera Begum", aadhar: "5642 0880 2039", dob: "1976-01-10", phone: "" },
+            { name: "Rubeena Begum", aadhar: "3174 8395 2899", dob: "1987-05-28", phone: "" },
+            { name: "Atif Ahmad Tantray", aadhar: "2074 2809 1066", dob: "2015-04-01", phone: "" },
+            { name: "ZAHRAAN AHMAD", aadhar: "7833 1084 0949", dob: "2018-05-02", phone: "" },
+            { name: "SHAKREENA BEGUM", aadhar: "5985 1484 5852", dob: "1968-03-20", phone: "" },
+            { name: "Rashida Bano", aadhar: "8196 6010 1887", dob: "2000-06-07", phone: "" },
+            { name: "Aziya Manzoor", aadhar: "2058 0805 4420", dob: "1990-09-10", phone: "" },
+            { name: "Naheema Bano", aadhar: "7577 4300 8896", dob: "1997-01-01", phone: "" },
+            { name: "Khursheeda Begum", aadhar: "6591 1167 1580", dob: "1975-11-09", phone: "" },
+            { name: "Jabeena Begum", aadhar: "8839 3293 9731", dob: "1996-06-02", phone: "" }
+        ];
 
         const renderRows = rows => {
             tableBody.innerHTML = "";
@@ -648,6 +727,55 @@
                 }
             }
         });
+
+        if (bulkImportButton) {
+            bulkImportButton.addEventListener("click", async () => {
+                if (beneficiaries.length === 0) {
+                    setStatus("Please wait for beneficiaries to load before importing.", "info");
+                    return;
+                }
+
+                const confirmImport = window.confirm("Import beneficiaries numbered 15 through 86? Existing Aadhar entries will be skipped.");
+                if (!confirmImport) {
+                    return;
+                }
+
+                bulkImportButton.disabled = true;
+                setStatus("Importing beneficiaries...", "info");
+
+                const existingAadhars = new Set(beneficiaries.map(entry => normalizeAadhar(entry.aadhar)));
+                let imported = 0;
+                let skipped = 0;
+
+                for (const entry of bulkEntries) {
+                    const aadharKey = normalizeAadhar(entry.aadhar);
+                    if (existingAadhars.has(aadharKey)) {
+                        skipped += 1;
+                        continue;
+                    }
+
+                    try {
+                        await addDoc(beneficiariesRef, {
+                            name: entry.name,
+                            aadhar: entry.aadhar,
+                            dob: entry.dob,
+                            phone: entry.phone,
+                            createdAt: serverTimestamp()
+                        });
+                        existingAadhars.add(aadharKey);
+                        imported += 1;
+                    } catch (error) {
+                        console.error("Failed to import beneficiary", entry, error);
+                        setStatus("Import failed. Check console for details.", "error");
+                        bulkImportButton.disabled = false;
+                        return;
+                    }
+                }
+
+                setStatus(`Import complete. Added ${imported} and skipped ${skipped}.`, "success");
+                bulkImportButton.disabled = false;
+            });
+        }
 
         form.addEventListener("submit", async event => {
             event.preventDefault();
