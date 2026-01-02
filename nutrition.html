@@ -6,230 +6,237 @@
     <title>Nutrition | Sheikh Mohalla Upper Mohora</title>
     <style>
         :root {
-            color-scheme: light;
-            --brand-primary: #F57C00;
-            --brand-secondary: #FFEB3B;
-            --brand-accent: #689F38;
-            --brand-surface: #FFF8E1;
-            --brand-dark: #424242;
+            --bg-color: #1a1a1a;
+            --card-pregnant-start: #FF512F;
+            --card-pregnant-end: #DD2476;
+            --card-sam-start: #DA22FF;
+            --card-sam-end: #9733EE;
+            --card-lactating-start: #FF8008;
+            --card-lactating-end: #FFC837;
+            --card-child36-start: #56ab2f;
+            --card-child36-end: #a8e063;
+            --card-child63-start: #F2994A;
+            --card-child63-end: #F2C94C;
+            --card-adolescent-start: #ec008c;
+            --card-adolescent-end: #fc6767;
+            --text-white: #ffffff;
+            --input-bg: #ffffff;
+            --header-gradient-start: #4A00E0;
+            --header-gradient-end: #8E2DE2;
+            --footer-blue: #2196F3;
         }
 
         body {
             margin: 0;
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--brand-surface);
-            color: var(--brand-dark);
+            background-color: var(--bg-color);
+            color: var(--text-white);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            padding-bottom: 80px; /* Space for footer */
         }
 
         header {
-            background-color: var(--brand-primary);
-            color: var(--brand-surface);
-            border-bottom: 4px solid var(--brand-secondary);
-        }
-
-        .header-content {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 2rem clamp(1.25rem, 4vw, 2.5rem);
+            background: transparent;
+            padding: 1.5rem 1rem;
             display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
+            justify-content: center;
+            border: none;
         }
 
-        .header-content h1 {
+        .header-pill {
+            background: linear-gradient(90deg, var(--header-gradient-start), var(--header-gradient-end));
+            padding: 0.75rem 2rem;
+            border-radius: 999px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .header-pill h1 {
             margin: 0;
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            letter-spacing: 0.06em;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: white;
         }
 
         .back-link {
-            font-size: 0.95rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            text-decoration: none;
-            color: var(--brand-surface);
-            opacity: 0.85;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .back-link:hover,
-        .back-link:focus-visible {
-            opacity: 1;
+            display: none; /* Hidden in reference design */
         }
 
         main {
             flex: 1;
-            max-width: 1100px;
-            margin: clamp(2rem, 6vw, 4rem) auto;
-            padding: 0 clamp(1.25rem, 5vw, 2.5rem) clamp(4rem, 8vw, 6rem);
-            display: grid;
-            gap: clamp(1.5rem, 4vw, 2.5rem);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem clamp(1rem, 3vw, 2rem);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .status-note {
+            display: none;
         }
 
         .calculator-grid {
             display: grid;
-            gap: clamp(1.5rem, 4vw, 2.25rem);
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         }
 
         .calculator-card {
-            background-color: #ffffff;
-            border-radius: 1.25rem;
-            padding: clamp(1.5rem, 4vw, 2.25rem);
-            box-shadow: 0 12px 28px rgba(66, 66, 66, 0.15);
-            border: 1px solid rgba(66, 66, 66, 0.08);
-            display: grid;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
             gap: 1rem;
+            position: relative;
+            overflow: hidden;
+            color: white;
+            border: none;
+        }
+
+        /* Card Gradients */
+        .card-pregnant { background: linear-gradient(135deg, var(--card-pregnant-start), var(--card-pregnant-end)); }
+        .card-sam { background: linear-gradient(135deg, var(--card-sam-start), var(--card-sam-end)); }
+        .card-lactating { background: linear-gradient(135deg, var(--card-lactating-start), var(--card-lactating-end)); }
+        .card-children-3-6 { background: linear-gradient(135deg, var(--card-child36-start), var(--card-child36-end)); }
+        .card-children-6-36 { background: linear-gradient(135deg, var(--card-child63-start), var(--card-child63-end)); }
+        .card-adolescent { background: linear-gradient(135deg, var(--card-adolescent-start), var(--card-adolescent-end)); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
         }
 
         .calculator-card h2 {
             margin: 0;
-            font-size: 1.1rem;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: var(--brand-primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 80%;
         }
 
-        .input-row {
+        .card-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .input-wrapper {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 0.25rem 0.5rem;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
         }
 
-        .input-row label {
-            font-size: 0.95rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
+        .input-wrapper label {
+            font-size: 0.7rem;
+            color: #666;
             text-transform: uppercase;
-            color: var(--brand-dark);
+            font-weight: 700;
+            margin-bottom: 0;
         }
 
-        .input-row input[type="number"] {
-            padding: 0.85rem 1rem;
-            border-radius: 0.85rem;
-            border: 1px solid rgba(66, 66, 66, 0.18);
+        .input-wrapper input {
+            border: none;
             font-size: 1rem;
-            background-color: var(--brand-surface);
-            color: var(--brand-dark);
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            appearance: textfield;
-            -moz-appearance: textfield;
-        }
-
-        .input-row input[type="number"]::-webkit-outer-spin-button,
-        .input-row input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        .input-row input[type="number"]:focus-visible {
-            border-color: var(--brand-accent);
-            box-shadow: 0 0 0 3px rgba(104, 159, 56, 0.25);
+            font-weight: 700;
+            color: #333;
+            width: 100%;
+            padding: 0;
             outline: none;
         }
 
-        .result-display {
-            background-color: rgba(245, 124, 0, 0.08);
-            border-radius: 0.85rem;
-            padding: 1rem;
+        .result-box {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #333;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-top: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .total-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: var(--footer-blue);
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            color: var(--brand-primary);
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+            z-index: 100;
+            border-top-left-radius: 50% 20px;
+            border-top-right-radius: 50% 20px;
         }
 
-        .result-display span:last-child {
-            font-size: 1.25rem;
-            color: var(--brand-dark);
-        }
-
-        .total-card {
-            background-color: var(--brand-dark);
-            color: var(--brand-surface);
-            border-radius: 1.25rem;
-            padding: clamp(1.75rem, 5vw, 2.75rem);
-            box-shadow: 0 16px 35px rgba(66, 66, 66, 0.2);
-            display: grid;
-            gap: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
-        .total-card span {
-            font-size: 0.95rem;
-            opacity: 0.8;
-        }
-
-        .total-card strong {
-            font-size: clamp(1.75rem, 5vw, 2.5rem);
-        }
-
-        .status-note {
-            margin: 0;
-            font-size: 0.9rem;
-            color: rgba(66, 66, 66, 0.7);
+        .total-content {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 2rem;
+            justify-content: space-between;
         }
 
         .floating-footer {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            background-color: var(--brand-dark);
-            color: var(--brand-surface);
-            padding: 0.75rem 1.5rem;
-            border-radius: 999px;
-            font-size: 0.9rem;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            box-shadow: 0 10px 25px rgba(66, 66, 66, 0.25);
+            display: none;
         }
 
         @media (max-width: 600px) {
-            main {
-                margin: 1.5rem auto 3.5rem;
-                padding: 0 1rem 3rem;
+            .input-group {
+                grid-template-columns: 1fr;
             }
-
-            .floating-footer {
-                bottom: 1rem;
-                right: 1rem;
-                left: 1rem;
-                text-align: center;
+            .total-footer {
+                font-size: 1.2rem;
+                height: 60px;
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <div class="header-content">
-            <a class="back-link" href="index.html">&#8592; Back to overview</a>
-            <h1>Nutrition Services</h1>
+        <div class="header-pill">
+            <h1>Sheikh Mohalla Upper Mohora</h1>
         </div>
     </header>
     <main>
-        <section class="status-note">Enter beneficiary counts for each group to calculate total nutrition requirements.</section>
         <section class="calculator-grid" id="calculator-grid" aria-live="polite"></section>
-        <section class="total-card" aria-live="polite">
-            <span>Total Requirement</span>
-            <strong id="total-requirement">0</strong>
-        </section>
     </main>
-    <footer class="floating-footer">developed by ruhan</footer>
+    <footer class="total-footer">
+        <div class="total-content">
+            <span>Total Requirement</span>
+            <span id="total-requirement">0</span>
+        </div>
+    </footer>
     <script>
         const groups = [
-            { id: "pregnant", label: "Pregnant", base: 159 },
-            { id: "lactating", label: "Lactating", base: 159 },
-            { id: "children-6-36", label: "Children 6 months to 3 years", base: 150 },
-            { id: "children-3-6", label: "Children 3 to 6 years", base: 274 },
-            { id: "sam", label: "SAM (Severe Acute Malnutrition)", base: 224 },
-            { id: "adolescent", label: "Adolescent", base: 150 }
+            { id: "pregnant", label: "Pregnant", base: 159, icon: "", styleClass: "card-pregnant" },
+            { id: "sam", label: "SAM (Severe Acute Malnutrition)", base: 224, icon: "🔥", styleClass: "card-sam" },
+            { id: "lactating", label: "Lactating", base: 159, icon: "💧", styleClass: "card-lactating" },
+            { id: "children-3-6", label: "Children 3 to 6 Years", base: 274, icon: "🍏", styleClass: "card-children-3-6" },
+            { id: "children-6-36", label: "Children 6 months to 3 years", base: 150, icon: "📚", styleClass: "card-children-6-36" },
+            { id: "adolescent", label: "Bechating", base: 150, icon: "👾", styleClass: "card-adolescent" }
         ];
 
         const calculatorGrid = document.getElementById("calculator-grid");
@@ -244,17 +251,23 @@
 
         const createCard = group => {
             const card = document.createElement("article");
-            card.className = "calculator-card";
+            card.className = `calculator-card ${group.styleClass}`;
             card.innerHTML = `
-                <h2>${group.label}</h2>
-                <div class="input-row">
-                    <label for="${group.id}-count">Beneficiaries</label>
-                    <input id="${group.id}-count" type="number" min="0" step="1" value="0" inputmode="numeric" pattern="\\d*" aria-describedby="${group.id}-result" />
+                <div class="card-header">
+                    <h2>${group.label}</h2>
+                    ${group.icon ? `<span class="card-icon">${group.icon}</span>` : ''}
                 </div>
-                <div class="result-display" id="${group.id}-result" role="status" aria-live="polite">
-                    <span>Requirement</span>
-                    <span data-result="${group.id}">0</span>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <label for="${group.id}-count">Beneficiaries</label>
+                        <input id="${group.id}-count" type="number" min="0" step="1" value="0" inputmode="numeric" pattern="\\d*" />
+                    </div>
+                    <div class="input-wrapper">
+                        <label>Doses</label>
+                        <input type="text" value="" readonly placeholder="-" />
+                    </div>
                 </div>
+                <div class="result-box" data-result="${group.id}">0</div>
             `;
             return card;
         };
@@ -290,7 +303,7 @@
                 const safeValue = value.trim();
                 const numericValue = Number.parseInt(safeValue, 10);
                 const normalized = Number.isNaN(numericValue) || numericValue < 0 ? 0 : numericValue;
-                event.target.value = normalized.toString();
+                // Don't force update the input value while typing, just the state
                 const groupId = id.replace("-count", "");
                 state[groupId] = normalized;
                 updateResults();
