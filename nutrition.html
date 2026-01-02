@@ -170,33 +170,51 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        .total-footer {
+        #floating-orb {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 80px;
-            background: var(--footer-blue);
+            bottom: 2rem;
+            right: 2rem;
+            width: clamp(100px, 15vw, 140px);
+            height: clamp(100px, 15vw, 140px);
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffffff, var(--orb-color, #4CAF50));
+            box-shadow: 
+                0 10px 25px rgba(0,0,0,0.3),
+                inset -10px -10px 20px rgba(0,0,0,0.2),
+                0 0 20px var(--orb-color, #4CAF50);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: white;
-            font-size: 1.5rem;
-            font-weight: 700;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
-            z-index: 100;
-            border-top-left-radius: 50% 20px;
-            border-top-right-radius: 50% 20px;
+            z-index: 1000;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.27), box-shadow 0.4s ease;
+            cursor: pointer;
+            text-align: center;
         }
 
-        .total-content {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-            width: 100%;
-            max-width: 1200px;
-            padding: 0 2rem;
-            justify-content: space-between;
+        #orb-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: rgba(0,0,0,0.6);
+            margin-bottom: 0.2rem;
+        }
+
+        #orb-total {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            font-weight: 900;
+            color: #333;
+            font-family: monospace;
+        }
+
+        @keyframes pulse-card {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
+            100% { transform: scale(1); }
+        }
+
+        .card-pulse {
+            animation: pulse-card 0.3s ease-in-out;
         }
 
         .floating-footer {
@@ -207,9 +225,9 @@
             .input-group {
                 grid-template-columns: 1fr;
             }
-            .total-footer {
-                font-size: 1.2rem;
-                height: 60px;
+            #floating-orb {
+                bottom: 1rem;
+                right: 1rem;
             }
         }
     </style>
@@ -223,12 +241,10 @@
     <main>
         <section class="calculator-grid" id="calculator-grid" aria-live="polite"></section>
     </main>
-    <footer class="total-footer">
-        <div class="total-content">
-            <span>Total Requirement</span>
-            <span id="total-requirement">0</span>
-        </div>
-    </footer>
+    <div id="floating-orb">
+        <span id="orb-label">Total</span>
+        <span id="orb-total">0</span>
+    </div>
     <script>
         const groups = [
             { id: "pregnant", label: "Pregnant", base: 159, icon: "", styleClass: "card-pregnant" },
@@ -240,7 +256,8 @@
         ];
 
         const calculatorGrid = document.getElementById("calculator-grid");
-        const totalRequirementEl = document.getElementById("total-requirement");
+        const orb = document.getElementById("floating-orb");
+        const orbTotal = document.getElementById("orb-total");
 
         const formatNumber = value => {
             const number = Number.isFinite(value) ? value : 0;
@@ -280,6 +297,35 @@
             return acc;
         }, {});
 
+        // Animation State
+        let currentTotal = 0;
+        let animationFrameId = null;
+
+        const animateValue = (obj, start, end, duration) => {
+            if (start === end) return;
+            const startTime = performance.now();
+            
+            const step = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Ease out quart
+                const ease = 1 - Math.pow(1 - progress, 4);
+                
+                const value = Math.floor(start + (end - start) * ease);
+                obj.textContent = formatNumber(value);
+                
+                if (progress < 1) {
+                    animationFrameId = requestAnimationFrame(step);
+                } else {
+                    obj.textContent = formatNumber(end);
+                }
+            };
+            
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            animationFrameId = requestAnimationFrame(step);
+        };
+
         const updateResults = () => {
             let total = 0;
 
@@ -290,7 +336,22 @@
                 total += result;
             });
 
-            totalRequirementEl.textContent = formatNumber(total);
+            // Animate Orb Total
+            animateValue(orbTotal, currentTotal, total, 1000);
+            
+            // Update Orb Appearance
+            // Scale based on total (max expected ~50,000)
+            const scale = 1 + Math.min(total / 50000, 0.3);
+            orb.style.transform = `scale(${scale})`;
+            
+            // Color Logic: Green (120) -> Yellow (60) -> Red (0)
+            // Max for Red is 20,000
+            const percentage = Math.min(total / 20000, 1);
+            const hue = 120 - (percentage * 120);
+            const color = `hsl(${hue}, 100%, 50%)`;
+            orb.style.setProperty('--orb-color', color);
+
+            currentTotal = total;
         };
 
         inputs.forEach(input => {
@@ -299,10 +360,16 @@
                 const safeValue = value.trim();
                 const numericValue = Number.parseInt(safeValue, 10);
                 const normalized = Number.isNaN(numericValue) || numericValue < 0 ? 0 : numericValue;
-                // Don't force update the input value while typing, just the state
+                
                 const groupId = id.replace("-count", "");
                 state[groupId] = normalized;
                 updateResults();
+
+                // Micro-interaction: Pulse
+                const card = event.target.closest('.calculator-card');
+                card.classList.remove('card-pulse');
+                void card.offsetWidth; // Trigger reflow
+                card.classList.add('card-pulse');
             });
 
             input.addEventListener("blur", event => {
