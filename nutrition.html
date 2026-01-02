@@ -129,7 +129,7 @@
 
         .input-group {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 1rem;
         }
 
@@ -217,7 +217,7 @@
 <body>
     <header>
         <div class="header-pill">
-            <h1>Sheikh Mohalla Upper Mohora</h1>
+            <h1>Nutrition</h1>
         </div>
     </header>
     <main>
@@ -236,7 +236,7 @@
             { id: "lactating", label: "Lactating", base: 159, icon: "💧", styleClass: "card-lactating" },
             { id: "children-3-6", label: "Children 3 to 6 Years", base: 274, icon: "🍏", styleClass: "card-children-3-6" },
             { id: "children-6-36", label: "Children 6 months to 3 years", base: 150, icon: "📚", styleClass: "card-children-6-36" },
-            { id: "adolescent", label: "Bechating", base: 150, icon: "👾", styleClass: "card-adolescent" }
+            { id: "adolescent", label: "Adolescent", base: 150, icon: "👾", styleClass: "card-adolescent" }
         ];
 
         const calculatorGrid = document.getElementById("calculator-grid");
@@ -261,10 +261,6 @@
                     <div class="input-wrapper">
                         <label for="${group.id}-count">Beneficiaries</label>
                         <input id="${group.id}-count" type="number" min="0" step="1" value="0" inputmode="numeric" pattern="\\d*" />
-                    </div>
-                    <div class="input-wrapper">
-                        <label>Doses</label>
-                        <input type="text" value="" readonly placeholder="-" />
                     </div>
                 </div>
                 <div class="result-box" data-result="${group.id}">0</div>
